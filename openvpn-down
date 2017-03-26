@@ -3,7 +3,7 @@
 # openvpn-down
 #=============
 
-route delete -net 192.168.1.0/24 -iface "$dev" -fib 1
+# route
 route delete default -fib 1
 
 ANCHOR="${OPENVPN_anchor}"
