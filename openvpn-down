@@ -1,26 +1,12 @@
 #!/usr/bin/env bash
 
 # openvpn-down
-#=================
+#=============
 
-# delete vpn route
-#ip rule delete from "$ifconfig_local" table tunnel
-#ip route flush table tunnel
+route delete -net 192.168.1.0/24 -iface "$dev" -fib 1
+route delete default -fib 1
 
-# clear unbound_outgoing_interface
-echo > /etc/unbound/unbound_outgoing_interface
+ANCHOR="${OPENVPN_anchor}"
 
-# comment out include
-sed -i '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/^/#/' /etc/unbound/conf.d/custom.conf
-
-# sleep for 1 second
-#sleep 1
-
-# stop socks5 server
-#systemctl stop sockd.service
-
-# sleep for 1 second
-#sleep 1
-
-# restart unbound dns server
-#systemctl restart unbound.service
+/sbin/pfctl -a "${ANCHOR}" -F rules
+/sbin/pfctl -a "${ANCHOR}" -F nat
