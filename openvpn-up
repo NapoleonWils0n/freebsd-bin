@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# enable ipv4 forwarding
+sysctl net.inet.ip.forwarding=1
+
 # routes
 ifconfig "$dev" "$ifconfig_local" "$ifconfig_remote" fib 1
 route add -net "$ifconfig_remote" -iface "$dev" -fib 1
@@ -12,6 +15,9 @@ ANCHOR="${OPENVPN_anchor}"
 /sbin/pfctl -a "${ANCHOR}" -F rules
 /sbin/pfctl -a "${ANCHOR}" -F nat
 /sbin/pfctl -a "${ANCHOR}" -f - <<EOT
+rdr pass on $LANIF inet proto udp from <myself> to <internet> port 53 -> "$ifconfig_local" port 53
+rdr pass on $LANIF inet proto tcp from <myself> to <internet> port 80 -> "$ifconfig_local" port 80
+rdr pass on $LANIF inet proto tcp from <myself> to <internet> port 443 -> "$ifconfig_local" port 443
 pass out quick on "$dev" inet keep state
 antispoof quick for "$dev"
 EOT
