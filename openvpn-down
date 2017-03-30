@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# disable ipv4 forwarding
-sysctl net.inet.ip.forwarding=0
-
 # openvpn-down
 #=============
 
