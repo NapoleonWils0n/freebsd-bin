@@ -15,9 +15,7 @@ ANCHOR="${OPENVPN_anchor}"
 /sbin/pfctl -a "${ANCHOR}" -F rules
 /sbin/pfctl -a "${ANCHOR}" -F nat
 /sbin/pfctl -a "${ANCHOR}" -f - <<EOT
-rdr pass on $LANIF inet proto udp from <myself> to <internet> port 53 -> "$ifconfig_local" port 53
-rdr pass on $LANIF inet proto tcp from <myself> to <internet> port 80 -> "$ifconfig_local" port 80
-rdr pass on $LANIF inet proto tcp from <myself> to <internet> port 443 -> "$ifconfig_local" port 443
-pass out quick on "$dev" inet keep state
+pass in on $LANIF reply-to ($dev $ifconfig_remote) to $ifconfig_local
+pass out on $LANIF route-to ($dev $ifconfig_remote) from $ifconfig_local
 antispoof quick for "$dev"
 EOT
