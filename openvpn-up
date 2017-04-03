@@ -2,7 +2,7 @@
 
 # routes
 ifconfig "$dev" "$ifconfig_local" "$ifconfig_remote" fib 1
-route add -net "$ifconfig_remote" -iface "$dev" -fib 1
+route add -net "$ifconfig_remote" "$ifconfig_local" -fib 1
 route add default "$ifconfig_remote" -fib 1
 
 # openvpn-up
@@ -13,9 +13,23 @@ ANCHOR="${OPENVPN_anchor}"
 /sbin/pfctl -a "${ANCHOR}" -F rules
 /sbin/pfctl -a "${ANCHOR}" -F nat
 /sbin/pfctl -a "${ANCHOR}" -f - <<EOT
-rdr pass on $LANIF inet proto udp from <myself> to <internet> port 53 -> "$ifconfig_local" port 53
-rdr pass on $LANIF inet proto tcp from <myself> to <internet> port 80 -> "$ifconfig_local" port 80
-rdr pass on $LANIF inet proto tcp from <myself> to <internet> port 443 -> "$ifconfig_local" port 443
-pass out quick on "$dev" inet keep state
+pass out quick on "$dev" inet modulate state
 antispoof quick for "$dev"
 EOT
+
+# echo tun0 ip address to unbound_outgoing_interface
+echo "outgoing-interface: $(ifconfig tun0 \
+| grep inet | grep -v inet6 |  head -1 | sed 's/\:/ /' | \
+awk '{print $2}')" > /etc/unbound/unbound_outgoing_interface
+
+# uncomment include
+sed -i "" '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/#//' /etc/unbound/conf.d/custom.conf
+
+# sleep for 1 second
+sleep 1
+
+# stop unbound dns server in fib 0
+service local_unbound stop
+
+# start unbound dns server in fib 1
+setfib 1 service local_unbound start

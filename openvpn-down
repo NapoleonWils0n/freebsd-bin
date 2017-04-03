@@ -3,10 +3,20 @@
 # openvpn-down
 #=============
 
-# route
-#route delete default -fib 1
-
 ANCHOR="${OPENVPN_anchor}"
 
 /sbin/pfctl -a "${ANCHOR}" -F rules
 /sbin/pfctl -a "${ANCHOR}" -F nat
+
+# uncomment include
+sed -i "" '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/^/#/' /etc/unbound/conf.d/custom.conf
+echo > /etc/unbound/unbound_outgoing_interface
+
+# sleep for 1 second
+sleep 1
+
+# stop unbound dns server in fib 1
+setfib 1 service local_unbound stop
+
+# start unbound dns server in fib 0
+service local_unbound start
