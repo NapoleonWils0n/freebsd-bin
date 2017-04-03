@@ -33,3 +33,9 @@ service local_unbound stop
 
 # start unbound dns server in fib 1
 setfib 1 service local_unbound start
+
+# sleep for 1 second
+sleep 1
+
+# start sockd
+setfib 1 service sockd onestart
