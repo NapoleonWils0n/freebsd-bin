@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# luks container mount and umount script
+# geli container mount and umount script
 #=======================================
 
 # check to see if script was run as root
