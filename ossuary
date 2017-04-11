@@ -26,19 +26,15 @@ poolname="crypt"
 select opt in "${options[@]}"; do
 case $opt in
   mount)
-        echo "Mounting container"
         mdconfig -a -t vnode -f "$container" -u 0
         geli attach -k "$gelikey" "$loop"
         zpool import "$poolname"
         break;;
   umount)
-        echo "Unmounting container"
         zfs umount "$poolname"
-		  sleep 1
         zpool export "$poolname"
 		  sleep 1
         geli detach "$loopcrypt"
-		  sleep 1
         mdconfig -d -u 0
 	break;;
   quit) 
