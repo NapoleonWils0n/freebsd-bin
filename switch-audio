@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# check to see if script was run as root
+if [[ $UID -ne 0 ]]; then
+  echo "$0 must be run as root using sudo, make your own sandwich"
+  exit 1
+fi
+
+# Create the prompt
+PS3="select an audio device: "
+options=("speakers" "headphones" "usb" "current" "quit")
+OLD_IFS=${IFS}; #ifs space seperator
+IFS=$'\t\n' #change ifs seperator from spaces to new line
+
+# select and case statement
+select opt in "${options[@]}"; do
+case $opt in
+  speakers)
+        sysctl hw.snd.default_unit=0
+        break;;
+  headphones)
+        sysctl hw.snd.default_unit=1
+        break;;
+  usb)
+        sysctl hw.snd.default_unit=2
+	     break;;
+  current)
+        cat /dev/sndstat
+	     break;;
+  quit) 
+	echo "Quitting"
+	IFS=${OLD_IFS}
+	break;;
+  *)    echo "Usage: ossuary [ speakers | usb | current | quit ]";;
+esac
+done
