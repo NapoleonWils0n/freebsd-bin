@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# check to see if script was run as root
+if [[ $UID -ne 0 ]]; then
+  printf "%s\n" "$(basename "$0") must be run as root using sudo"
+  exit 1
+fi
+
+printf "%s\n" "reloading pf config"
+
+pfctl -f /etc/pf.conf
