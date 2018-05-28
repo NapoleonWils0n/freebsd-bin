@@ -2,7 +2,7 @@
 
 # check to see if script was run as root
 if [[ $UID -ne 0 ]]; then
-  echo "$0 must be run as root using sudo, make your own sandwich"
+  printf "%s\n" "$(basename "$0") must be run as root using sudo"
   exit 1
 fi
 
@@ -31,6 +31,6 @@ case $opt in
 	echo "Quitting"
 	IFS=${OLD_IFS}
 	break;;
-  *)    echo "Usage: ossuary [ speakers | usb | current | quit ]";;
+  *)    printf "%s\n" "Usage: $(basename "$0") [ speakers | headphones | usb | current | quit ]";;
 esac
 done
