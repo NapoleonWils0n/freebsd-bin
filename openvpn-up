@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/local/bin/bash
 
 # routes
 ifconfig "$dev" "$ifconfig_local" "$ifconfig_remote" fib 1

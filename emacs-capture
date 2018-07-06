@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/local/bin/bash
 
 #emacsclient -s /tmp/emacs1001/server -c -F "((name . \"emacs-capture\") (height . 25) (width . 100))" "$@"
 emacsclient -c -F "((name . \"emacs-capture\") (height . 25) (width . 100))" "$@"

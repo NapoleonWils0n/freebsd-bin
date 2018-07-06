@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/local/bin/bash
 
 # extract title, content with awk
 title=$(awk -F "[][]" '/title/{print $3}' <<<"$@")
