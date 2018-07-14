@@ -23,10 +23,10 @@ case $opt in
         break;;
   usb)
         sysctl hw.snd.default_unit=2
-	     break;;
+        break;;
   current)
         cat /dev/sndstat
-	     break;;
+        break;;
   quit) 
 	echo "Quitting"
 	IFS=${OLD_IFS}
