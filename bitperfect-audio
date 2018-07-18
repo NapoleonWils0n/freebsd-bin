@@ -1,0 +1,37 @@
+#!/usr/local/bin/bash
+
+# toggle bitperfect audio off and on
+
+# check to see if script was run as root
+if [[ $UID -ne 0 ]]; then
+  printf "%s\n" "$(basename "$0") must be run as root using sudo"
+  exit 1
+fi
+
+# Create the prompt
+PS3="Toggle bitperfect audio off and on: "
+options=("bitperfect-off" "bitperfect-on" "current" "quit")
+OLD_IFS=${IFS}; #ifs space seperator
+IFS=$'\t\n' #change ifs seperator from spaces to new line
+
+# select and case statement
+select opt in "${options[@]}"; do
+case $opt in
+  bitperfect-off)
+        sysctl dev.pcm.2.bitperfect=0
+        break;;
+  bitperfect-on)
+        sysctl dev.pcm.2.bitperfect=1
+        break;;
+  current)
+        bitperfect=$(sysctl dev.pcm.2.bitperfect | awk {'print $2}')
+	[[ $bitperfect == 0 ]] && printf "%s\n" "bitperfect audio off" || printf "%s\n" "bitperfect audio on"
+        break;;
+  quit) 
+	echo "Quitting"
+	IFS=${OLD_IFS}
+	break;;
+  *)    printf "%s\n" "Usage: $(basename "$0") [ bitperfect-off | bitperfect-on | current | quit ]";;
+esac
+done
+
