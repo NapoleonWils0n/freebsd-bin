@@ -15,27 +15,31 @@ options=("mount" "umount" "quit")
 OLD_IFS=${IFS}; #ifs space seperator
 IFS=$'\t\n' #change ifs seperator from spaces to new line
 
-# container variables
-loop="/dev/md0"
-loopcrypt="/dev/md0.eli"
+# container
 container="/usr/home/djwilcox/documents/disk.img"
+# geli key
 gelikey="/usr/home/djwilcox/.ossuary/ossuary.key"
+# zfs pool name
 poolname="crypt"
+# mdconfig device
+loopdevice=$(mdconfig -lf "$container" | sed 's/[ \t]*$//')
+# geli device
+loopcrypt="/dev/${loopdevice}.eli"
 
 # select and case statement
 select opt in "${options[@]}"; do
 case $opt in
   mount)
-        { mdconfig -a -t vnode -f "$container" -u 0 && \
+        { loop=$(mdconfig -a -t vnode -f "$container") && \
         geli attach -k "$gelikey" "$loop" && \
-        zpool import "$poolname"; } || { mdconfig -d -u 0 && break; }
+        zpool import "$poolname"; } || { mdconfig -du "$loopdevice" && break; }
         break;;
   umount)
         { zfs umount "$poolname" && \
         zpool export "$poolname" && \
         sleep 1 && \
         geli detach "$loopcrypt" && \
-        mdconfig -d -u 0; } || { printf "%s\n" 'container not mounted' && break; }
+        mdconfig -du "$loopdevice"; } || { printf "%s\n" 'container not mounted' && break; }
 	break;;
   quit) 
 	echo "Quitting"
