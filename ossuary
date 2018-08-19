@@ -31,11 +31,11 @@ case $opt in
         zpool import "$poolname"; } || { mdconfig -d -u 0 && break; }
         break;;
   umount)
-        zfs umount "$poolname" && \
+        { zfs umount "$poolname" && \
         zpool export "$poolname" && \
         sleep 1 && \
         geli detach "$loopcrypt" && \
-        mdconfig -d -u 0
+        mdconfig -d -u 0; } || { printf "%s\n" 'container not mounted' && break; }
 	break;;
   quit) 
 	echo "Quitting"
