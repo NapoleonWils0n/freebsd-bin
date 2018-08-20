@@ -19,9 +19,8 @@ IFS=$'\t\n' #change ifs seperator from spaces to new line
 container="/usr/home/djwilcox/documents/disk.img"
 # geli key
 gelikey="/usr/home/djwilcox/.ossuary/ossuary.key"
-# zfs pool name
-poolname="crypt"
-# mdconfig device
+
+# mdconfig device - remove white space from end of command with sed
 loopdevice=$(mdconfig -lf "$container" | sed 's/[ \t]*$//')
 # geli device
 loopcrypt="/dev/${loopdevice}.eli"
@@ -32,10 +31,12 @@ case $opt in
   mount)
         { loop=$(mdconfig -a -t vnode -f "$container") && \
         geli attach -k "$gelikey" "$loop" && \
+        poolname=$(zdb -l /dev/md0.eli | awk -F\' '/[[:blank:]]name/ {print $2; exit;}') && \
         zpool import "$poolname"; } || { mdconfig -du "$loopdevice" && break; }
         break;;
   umount)
-        { zfs umount "$poolname" && \
+        { poolname=$(zdb -l /dev/md0.eli | awk -F\' '/[[:blank:]]name/ {print $2; exit;}') && \
+        zfs umount "$poolname" && \
         zpool export "$poolname" && \
         sleep 1 && \
         geli detach "$loopcrypt" && \
