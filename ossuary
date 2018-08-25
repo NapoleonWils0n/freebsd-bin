@@ -9,6 +9,9 @@ if [[ $UID -ne 0 ]]; then
   exit 1
 fi
 
+# check number of arguments
+[[ $# -eq 0 ]] || exit
+
 # Create the prompt
 PS3="Enter your choice: "
 options=("mount" "umount" "quit")
