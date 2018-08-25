@@ -29,18 +29,28 @@ loopcrypt="/dev/${loopdevice}.eli"
 select opt in "${options[@]}"; do
 case $opt in
   mount)
-        { loop=$(mdconfig -a -t vnode -f "$container") && \
+      { printf "%s\n" "+ mdconfig creating vnode for $container" && \
+        loop=$(mdconfig -a -t vnode -f "$container") && \
+	printf "%s\n" "+ geli attaching $gelikey to $container" && \
         geli attach -k "$gelikey" "$loop" && \
         poolname=$(zdb -l /dev/md0.eli | awk -F\' '/[[:blank:]]name/ {print $2; exit;}') && \
-        zpool import "$poolname"; } || { mdconfig -du "$loopdevice" && break; }
+	printf "%s\n" "+ zpool importing $poolname" && \
+        zpool import "$poolname" && \
+        mountpoint=$(zfs get -H -o value mountpoint "$poolname") && \
+        printf "%s\n" "+ $poolname mounted to $mountpoint"; } || { mdconfig -du "$loopdevice" && break; }
         break;;
   umount)
-        { poolname=$(zdb -l /dev/md0.eli | awk -F\' '/[[:blank:]]name/ {print $2; exit;}') && \
+      { poolname=$(zdb -l /dev/md0.eli | awk -F\' '/[[:blank:]]name/ {print $2; exit;}') && \
+	printf "%s\n" "- zfs unmounting $poolname" && \
         zfs umount "$poolname" && \
+	printf "%s\n" "- zpool exporting $poolname" && \
         zpool export "$poolname" && \
         sleep 1 && \
+	printf "%s\n" "- geli detaching $loopcrypt" && \
         geli detach "$loopcrypt" && \
-        mdconfig -du "$loopdevice"; } || { printf "%s\n" 'container not mounted' && break; }
+	printf "%s\n" "- mdconfig clearing $loopdevice" && \
+        mdconfig -du "$loopdevice" && \
+        printf "%s\n" "- unmounted device"; } || { printf "%s\n" 'container not mounted' && break; }
 	break;;
   quit) 
 	echo "Quitting"
