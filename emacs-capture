@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/sh
 
 # connect to emacs socket
 #/usr/local/bin/emacsclient -s /tmp/emacs1001/server -c -F "((name . \"emacs-capture\") (height . 25) (width . 100))" "$@"
