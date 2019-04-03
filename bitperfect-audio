@@ -1,37 +1,30 @@
-#!/usr/local/bin/bash
+#!/bin/sh
 
 # toggle bitperfect audio off and on
+usage="usage: $(basename "$0") [ on | off | current ]"
+
+device="dev.pcm.0.bitperfect" # speakers
+#device="dev.pcm.1.bitperfect" # headphones
+#device="dev.pcm.2.bitperfect" # usb
 
 # check to see if script was run as root
-if [[ $UID -ne 0 ]]; then
-  printf "%s\n" "$(basename "$0") must be run as root using sudo"
-  exit 1
-fi
+[ "$(id -u)" = "0" ] || { printf "%s\n" "$0 must be run as root"; exit 1; }
 
-# Create the prompt
-PS3="Toggle bitperfect audio off and on: "
-options=("bitperfect-off" "bitperfect-on" "current" "quit")
-OLD_IFS=${IFS}; #ifs space seperator
-IFS=$'\t\n' #change ifs seperator from spaces to new line
+# check if 1 argument is passed to the script
+[ $# = 1 ] || { printf "%s\n" "$usage"; exit 1; }
 
-# select and case statement
-select opt in "${options[@]}"; do
-case $opt in
-  bitperfect-off)
-        sysctl dev.pcm.2.bitperfect=0
+# case statement
+input="$1"
+case "$input" in
+  on)
+        sysctl ${device}=1
         break;;
-  bitperfect-on)
-        sysctl dev.pcm.2.bitperfect=1
+  off)
+        sysctl ${device}=0
         break;;
   current)
-        bitperfect=$(sysctl dev.pcm.2.bitperfect | awk {'print $2}')
-	[[ $bitperfect == 0 ]] && printf "%s\n" "bitperfect audio off" || printf "%s\n" "bitperfect audio on"
+        bitperfect=$(sysctl $device | awk {'print $2}')
+	[ "$bitperfect" = 0 ] && printf "%s\n" "bitperfect audio off" || printf "%s\n" "bitperfect audio on"
         break;;
-  quit) 
-	echo "Quitting"
-	IFS=${OLD_IFS}
-	break;;
-  *)    printf "%s\n" "Usage: $(basename "$0") [ bitperfect-off | bitperfect-on | current | quit ]";;
+  *)    printf "%s\n" "$usage";;
 esac
-done
-
