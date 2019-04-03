@@ -1,20 +1,17 @@
-#!/usr/local/bin/bash
+#!/bin/sh
+
+# switch audio devices
+usage="usage: $(basename "$0") [ speakers | headphones | usb | current ]"
 
 # check to see if script was run as root
-if [[ $UID -ne 0 ]]; then
-  printf "%s\n" "$(basename "$0") must be run as root using sudo"
-  exit 1
-fi
+[ "$(id -u)" = "0" ] || { printf "%s\n" "$0 must be run as root"; exit 1; }
 
-# Create the prompt
-PS3="select an audio device: "
-options=("speakers" "headphones" "usb" "current" "quit")
-OLD_IFS=${IFS}; #ifs space seperator
-IFS=$'\t\n' #change ifs seperator from spaces to new line
+# check if 1 argument is passed to the script
+[ $# = 1 ] || { printf "%s\n" "$usage"; exit 1; }
 
-# select and case statement
-select opt in "${options[@]}"; do
-case $opt in
+# case statement
+input="$1"
+case "$input" in
   speakers)
         sysctl hw.snd.default_unit=0
         break;;
@@ -27,10 +24,5 @@ case $opt in
   current)
         cat /dev/sndstat
         break;;
-  quit) 
-	echo "Quitting"
-	IFS=${OLD_IFS}
-	break;;
-  *)    printf "%s\n" "Usage: $(basename "$0") [ speakers | headphones | usb | current | quit ]";;
+  *)    printf "%s\n" "$usage";;
 esac
-done
