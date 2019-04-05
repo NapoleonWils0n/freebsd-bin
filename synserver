@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # synergy-core server
-usage="usage: $(basename "$0") [ on | off ]"
+usage="usage: $(basename "$0") [ start | stop ]"
 
 # check if 1 argument is passed to the script
 [ $# = 1 ] || { printf "%s\n" "$usage"; exit 1; }
@@ -9,11 +9,11 @@ usage="usage: $(basename "$0") [ on | off ]"
 # case statement
 input="$1"
 case "$input" in
-  on)
+  start)
         # if server isnt running start it
         synergy-core --server --address 192.168.1.3:24800 --config /usr/local/etc/synergy.conf
         break;;
-  off)
+  stop)
         # if server is running stop it
         pkill synergy-core
         break;;
