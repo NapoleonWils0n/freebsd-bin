@@ -67,9 +67,32 @@ print_format=summary [audio]" \
 "$normalized_file"
 }
 
+# audio function
+video () {
+ffmpeg \
+-hide_banner \
+-i "$infile" \
+-c:v copy \
+-filter_complex \
+"loudnorm=I=-16:
+dual_mono=true:
+TP=-1.5:
+LRA=11:
+measured_I=${measured_I}:
+measured_LRA=${measured_LRA}:
+measured_TP=${measured_TP}:
+measured_thresh=${measured_thresh}:
+offset=${offset}:
+linear=true:
+print_format=summary [audio]" \
+-map 0:v -map "[audio]" \
+"$normalized_file"
+}
+
 # run the audio or video function based on the file extension
 case "$infile_ext" in
-  mp4|mkv|mov|m4v|aac|m4a|wav|mp3) audio "$infile";;
+  mp4|mkv|mov|m4v) video "$infile";;
+  aac|m4a|wav|mp3) audio "$infile";;
   *) { printf "%s\n" "$script_usage" && exit; };;
 esac
 
