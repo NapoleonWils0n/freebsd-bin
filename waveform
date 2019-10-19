@@ -3,7 +3,7 @@
 # ffmpeg waveform
 
 # script usage
-script_usage=$(printf "%s\n%s\n" "$(basename "$0") -i infile.(wav|aac)")
+script_usage=$(printf "%s\n%s\n" "$(basename "$0") -i infile.(mp4|mkv|mov|m4v|wav|aac|m4a|mp3)")
 
 # check arguments
 if [ $# -eq 2 ]; then
@@ -37,6 +37,6 @@ wform () {
 
 # run the ffmpeg function based on the file extension
 case "$infile_ext" in
-  wav|aac) wform "$infile";;
+  mp4|mkv|mov|m4v|wav|aac|m4a|mp3) wform "$infile";;
   *) { printf "%s\n" "$script_usage" && exit; };;
 esac
