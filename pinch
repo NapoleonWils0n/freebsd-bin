@@ -35,11 +35,16 @@ url=$(youtube-dl -f bestaudio -g "${infile}")
 # yt function
 yt () {
     if [ -z "$(mpc current)" ]; then # nothing playing
-        mpc add "${url}"
-        mpc play 
-    else
-        mpc add "${url}" 
-	mpc next 
+        if [ -z "$(mpc playlist)" ]; then # playlist empty
+            mpc add "${url}"
+            mpc play 
+	else # playlist not empty so add url and play 2
+           mpc add "${url}"
+           mpc play 2 
+	fi
+    else # audio playing insert url and play next
+        mpc insert "${url}" 
+	mpc next
     fi
 }
 
