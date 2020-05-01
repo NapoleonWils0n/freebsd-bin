@@ -8,7 +8,7 @@ usage="usage: $(basename "$0") [ on | off | current ]"
 device="dev.pcm.2.bitperfect" # usb
 
 # check to see if script was run as root
-[ "$(id -u)" = "0" ] || echo "$0 must be run as root"; exit 1; }
+[ "$(id -u)" = "0" ] || echo "$0 must be run as root"; exit 1; ]
 
 # check if 1 argument is passed to the script
 [ $# = 1 ] || { echo "$usage"; exit 1; }

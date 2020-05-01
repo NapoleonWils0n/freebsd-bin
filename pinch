@@ -30,7 +30,7 @@ done
 shift $((OPTIND-1))
 
 # get the audio url
-url=$(youtube-dl --no-playlist -f bestaudio -g "${infile}")
+url=$(youtube-dl --no-check-certificate --no-playlist -f bestaudio -g "${infile}")
 
 # yt function
 yt () {
