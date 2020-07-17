@@ -21,7 +21,7 @@ WRONG_ARGS_ERR='wrong number of arguments passed to script'
 while getopts ':i:h' opt
 do
   case ${opt} in
-     i) infile="${OPTARG}";;
+     i) input="${OPTARG}";;
      h) usage;;
      \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
      :) usage "${INVALID_OPT_ERR} ${OPTARG} ${REQ_ARG_ERR}" 1>&2;;
@@ -29,23 +29,28 @@ do
 done
 shift $((OPTIND-1))
 
-# get the audio url
-url=$(youtube-dl --no-check-certificate --no-playlist -f bestaudio -g "${infile}")
+# get the audio url and title
+url=$(youtube-dl --no-check-certificate --no-playlist -e -f bestaudio -g "${input}")
+link=$(echo "${url}" | awk -F' ' '/https:/ {print $1}') # audio url
+name=$(echo "${url}" | awk -F'https:' '{print $1}') # name of song
 
 # yt function
 yt () {
     if [ -z "$(mpc current)" ]; then # nothing playing
         if [ -z "$(mpc playlist)" ]; then # playlist empty
-           mpc add "${url}"
+           mpc add "${link}"
            mpc play 
+	   notify-send "Now Playing ♫" "${name}"
 	else # playlist not empty so clear add url and play
            mpc clear
-	   mpc add "${url}"
+	   mpc add "${link}"
            mpc play 
+	   notify-send "Now Playing ♫" "${name}"
 	fi
     else # audio playing insert url and play next
-        mpc insert "${url}" 
+        mpc insert "${link}" 
 	mpc next
+	notify-send "Now Playing ♫" "${name}"
     fi
 }
 
