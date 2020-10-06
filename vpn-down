@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# openvpn-down
+#=============
+
+# uncomment include
+sed -i "" '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/^/#/' /etc/unbound/conf.d/custom.conf
+echo > /etc/unbound/unbound_outgoing_interface
+
+# sleep for 1 second
+sleep 1
+
+# stop unbound dns server
+service local_unbound stop
+
+# start unbound dns server
+service local_unbound start
+
+# sleep for 1 second
+sleep 1

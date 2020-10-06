@@ -30,7 +30,7 @@ select fileName in Quit $fileList; do
 	break
 	;;
 	$fileName )
-	openvpn --auth-nocache --config ${fileName}
+	openvpn --auth-nocache --route-nopull --script-security 2 --up /home/djwilcox/bin/vpn-up --down /home/djwilcox/bin/vpn-down --config ${fileName}
 	break
 	;;
 	* )
