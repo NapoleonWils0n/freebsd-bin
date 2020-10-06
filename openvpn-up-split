@@ -1,0 +1,41 @@
+#!/usr/local/bin/bash
+
+# routes
+ifconfig "$dev" "$ifconfig_local" "$ifconfig_remote" fib 1
+route add -net "$ifconfig_remote" "$ifconfig_local" -fib 1
+route add default "$ifconfig_remote" -fib 1
+
+# openvpn-up
+LANIF="${OPENVPN_lanif}"
+ANCHOR="${OPENVPN_anchor}"
+
+# pf rules
+/sbin/pfctl -a "${ANCHOR}" -F rules
+/sbin/pfctl -a "${ANCHOR}" -F nat
+/sbin/pfctl -a "${ANCHOR}" -f - <<EOT
+pass out quick on "$dev" inet modulate state
+antispoof quick for "$dev"
+EOT
+
+# echo tun0 ip address to unbound_outgoing_interface
+echo "outgoing-interface: $(ifconfig tun0 \
+| grep inet | grep -v inet6 |  head -1 | sed 's/\:/ /' | \
+awk '{print $2}')" > /etc/unbound/unbound_outgoing_interface
+
+# uncomment include
+sed -i "" '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/#//' /etc/unbound/conf.d/custom.conf
+
+# sleep for 1 second
+sleep 1
+
+# stop unbound dns server in fib 0
+service local_unbound stop
+
+# start unbound dns server in fib 1
+setfib 1 service local_unbound start
+
+# sleep for 1 second
+sleep 1
+
+# start sockd
+setfib 1 service sockd onestart
