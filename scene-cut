@@ -1,26 +1,26 @@
 #!/bin/sh
 
 #===============================================================================
-# loudnorm
-# ffmpeg loudnorm
+# scene-cut
+# ffmpeg scene cut
 #===============================================================================
 
 # dependencies:
-# ffmpeg
+# ffmpeg 
 
 #===============================================================================
 # script usage
 #===============================================================================
 
-usage()
-{
+usage () {
 # if argument passed to function echo it
 [ -z "${1}" ] || echo "! ${1}"
 # display help
 echo "\
-# ffmpeg loudnorm
+$(basename "$0") -i input -c cutfile
 
-$(basename "$0") -i input.(mp4|mkv|mov|m4v|aac|m4a|wav|mp3)"
+-i input.(mp4|mov|mkv|m4v)
+-c cutfile"
 exit 2
 }
 
@@ -33,7 +33,6 @@ INVALID_OPT_ERR='Invalid option:'
 REQ_ARG_ERR='requires an argument'
 WRONG_ARGS_ERR='wrong number of arguments passed to script'
 
-
 #===============================================================================
 # check the number of arguments passed to the script
 #===============================================================================
@@ -45,10 +44,11 @@ WRONG_ARGS_ERR='wrong number of arguments passed to script'
 # getopts check the options passed to the script
 #===============================================================================
 
-while getopts ':i:h' opt
+while getopts ':i:c:h' opt
 do
   case ${opt} in
-     i) infile="${OPTARG}";;
+     i) input="${OPTARG}";;
+     c) cutfile="${OPTARG}";;
      h) usage;;
      \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
      :) usage "${INVALID_OPT_ERR} ${OPTARG} ${REQ_ARG_ERR}" 1>&2;;
@@ -58,17 +58,40 @@ shift $((OPTIND-1))
 
 
 #===============================================================================
-# functions
+# variables
 #===============================================================================
 
-# ffmpeg loudnorm get stats from file
-normalize () {
+# get the input file name
+input_nopath="${input##*/}"
+input_name="${input_nopath%.*}"
+
+#===============================================================================
+# ffmpeg create clips - nostdin needed to avoid clash with read command
+#===============================================================================
+
+trim_video () {
+    output="${input_name}-${count}.mp4" 
     ffmpeg \
+    -nostdin \
     -hide_banner \
-    -i "${infile}" \
-    -af "loudnorm=I=-16:dual_mono=true:TP=-1.5:LRA=11:print_format=summary" \
-    -f null -
+    -stats -v panic \
+    -ss "${start}" \
+    -i "${input}" \
+    -t "${duration}" \
+    -c:a aac \
+    -c:v libx264 -profile:v high \
+    -pix_fmt yuv420p -movflags +faststart \
+    -f mp4 \
+    "${output}"
 }
 
-# run the normalize function
-normalize "${infile}"
+
+#===============================================================================
+# read file and set IFS=, read = input before , duration = input after ,
+#===============================================================================
+
+count=1
+while IFS=, read -r start duration; do
+  trim_video
+  count="$((count+1))"
+done < "${cutfile}"

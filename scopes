@@ -1,39 +1,60 @@
 #!/bin/sh
 
+#===============================================================================
+# scopes
 # ffplay video scopes
+#===============================================================================
 
+# dependencies:
+# ffplay
+
+#===============================================================================
 # script usage
+#===============================================================================
+
 usage()
 {
 [ -z "${1}" ] || echo "! ${1}"
 echo "\
 # ffplay video scopes
 
-$(basename "$0") -i infile = histogram
-$(basename "$0") -o infile = rgb overlay
-$(basename "$0") -p infile = rgb parade
-$(basename "$0") -s infile = rgb overlay and parade
-$(basename "$0") -w infile = waveform
-$(basename "$0") -v infile = vector scope
+$(basename "$0") -i input = histogram
+$(basename "$0") -o input = rgb overlay
+$(basename "$0") -p input = rgb parade
+$(basename "$0") -s input = rgb overlay and parade
+$(basename "$0") -w input = waveform
+$(basename "$0") -v input = vector scope
 $(basename "$0") -h = help
 "
 exit 2
 }
 
+
+#===============================================================================
 # error messages
-NOTFILE_ERR='not a file'
+#===============================================================================
+
 INVALID_OPT_ERR='Invalid option:'
 REQ_ARG_ERR='requires an argument'
 WRONG_ARGS_ERR='wrong number of arguments passed to script'
-NOT_MEDIA_FILE_ERR='is not a media file'
 
-# if script is run arguments pass and check the options with getopts,
-# else display script usage and exit
+
+#===============================================================================
+# check the number of arguments passed to the script
+#===============================================================================
+
 [ $# -gt 0 ] || usage "${WRONG_ARGS_ERR}"
+
+
+#===============================================================================
+# functions
+#===============================================================================
 
 # histogram overlay
 histogram_overlay () {
     ffplay "${infile}" \
+    -hide_banner \
+    -stats -v panic \
     -vf \
     "split=2[a][b],
     [b]histogram,
@@ -45,6 +66,8 @@ histogram_overlay () {
 # rgb overlay
 rgb_overlay () {
     ffplay "${infile}" \
+    -hide_banner \
+    -stats -v panic \
     -vf \
     "format=gbrp,
     split=2[a][b],
@@ -61,6 +84,8 @@ rgb_overlay () {
 # rgb parade
 rgb_parade () {
     ffplay "${infile}" \
+    -hide_banner \
+    -stats -v panic \
     -vf \
     "format=gbrp,
     split=2[a][b],
@@ -76,6 +101,8 @@ rgb_parade () {
 # rgb overlay and parade stacked
 rgb_stacked () {
     ffplay "${infile}" \
+    -hide_banner \
+    -stats -v panic \
     -vf \
     "format=gbrp,
     split=3[a][b][c],
@@ -98,6 +125,8 @@ rgb_stacked () {
 # waveform lowpass
 waveform_lowpass () {
     ffplay "${infile}" \
+    -hide_banner \
+    -stats -v panic \
     -vf \
     "split=2[a][b],
     [b]waveform=f=lowpass:
@@ -111,6 +140,8 @@ waveform_lowpass () {
 # vectorscope
 vectorscope () {
     ffplay "${infile}" \
+    -hide_banner \
+    -stats -v panic \
     -vf \
     "format=yuva444p9,
     split=2[m][v],
@@ -123,7 +154,10 @@ vectorscope () {
 }
 
 
-# getopts check and validate options
+#===============================================================================
+# getopts check the options passed to the script
+#===============================================================================
+
 while getopts ':i:o:p:s:w:v:h' opt
 do
   case ${opt} in

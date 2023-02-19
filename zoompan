@@ -1,6 +1,16 @@
 #!/bin/sh
 
-# zoompan, ken burns effect
+#===============================================================================
+# zoompan
+# ken burns effect
+#===============================================================================
+
+# dependencies:
+# ffmpeg ffprobe 
+
+#===============================================================================
+# script usage
+#===============================================================================
 
 # script usage
 usage ()
@@ -11,12 +21,12 @@ usage ()
 echo "\
 # zoompan, ken burns effect
 
-$(basename "$0") -i infile.(png|jpg|jpeg) -d (000) -z (in|out) -p (tl|c|tc|tr|bl|br) -o outfile.mp4
--i = infile.(png|jpg|jpeg)
+$(basename "$0") -i input.(png|jpg|jpeg) -d (000) -z (in|out) -p (tl|c|tc|tr|bl|br) -o output.mp4
+-i = input.(png|jpg|jpeg)
 -d = duration : from 1-999
 -z = zoom : in or out
 -p = position : zoom to location listed below
--o = outfile.mp4 : optional agument # default is infile-name-zoompan-date-time
+-o = outfile.mp4 : optional argument # default is input-name-zoompan-date-time
 
 +------------------------------+
 +tl            tc            tr+
@@ -28,33 +38,36 @@ $(basename "$0") -i infile.(png|jpg|jpeg) -d (000) -z (in|out) -p (tl|c|tc|tr|bl
 exit 2
 }
 
+
+#===============================================================================
 # error messages
-NOTFILE_ERR='not a file'
+#===============================================================================
+
 INVALID_OPT_ERR='Invalid option:'
 REQ_ARG_ERR='requires an argument'
 WRONG_ARGS_ERR='wrong number of arguments passed to script'
 NOT_MEDIA_FILE_ERR='is not a media file'
 
-# if script is run arguments pass and check the options with getopts,
-# else display script usage and exit
+
+#===============================================================================
+# check the number of arguments passed to the script
+#===============================================================================
+
 [ $# -gt 0 ] || usage "${WRONG_ARGS_ERR}"
 
-# duration regex match [1-9]
-dur_regex='^[0-9]\{1,2\}$'
-position_regex='^[a-z]\{1,2\}$'
 
-# getopts and check if input a file
+#===============================================================================
+# getopts check the options passed to the script
+#===============================================================================
+
 while getopts ':i:d:z:p:o:h' opt
 do
   case ${opt} in
-     i) infile="${OPTARG}"
-	[ -f "${infile}" ] || usage "${infile} ${NOTFILE_ERR}";;
-     d) dur="${OPTARG}"
-        expr "${dur}" : "${dur_regex}" 1>/dev/null;;
+     i) infile="${OPTARG}";;
+     d) dur="${OPTARG}";;
      z) zoom="${OPTARG}"
         [ "${zoom}" = 'in' ] || [ "${zoom}" = 'out' ];;
-     p) position="${OPTARG}"
-        expr "${position}" : "${position_regex}" 1>/dev/null;;
+     p) position="${OPTARG}";;
      o) outfile="${OPTARG}";;
      h) usage;;
      \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
@@ -63,16 +76,14 @@ do
 done
 shift $((OPTIND-1))
 
-# infile, infile name and extension
+
+#===============================================================================
+# variables
+#===============================================================================
+
+# input, input name and extension
 infile_nopath="${infile##*/}"
 infile_name="${infile_nopath%.*}"
-
-# file command check input file mime type
-filetype="$(file --mime-type -b "${infile}")"
-
-# image mimetypes
-png_mime='image/png'
-jpg_mime='image/jpeg'
 
 # ffprobe get image height
 imgheight="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 "${infile}")"
@@ -80,7 +91,7 @@ imgheight="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -o
 # frames per seconds
 infps='30'
 
-### zoom in positions
+# zoom in positions
 
 # zoom in top left
 zi_top_left="scale=-2:10*ih,\
@@ -110,7 +121,7 @@ fps=${infps}:d=${infps}*${dur}:\
 x='iw/zoom-(iw/zoom/2)',\
 scale=-2:${imgheight}" \
 
-### zoom out positions
+# zoom out positions
 
 # zoom out top left
 zo_top_left="scale=-2:2*ih,\
@@ -156,13 +167,12 @@ scale=-2:${imgheight}" \
 # outfile file recording destination
 outfile_default="${infile_name}-zoompan-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
 
-# check the files mime type is a image
-case "${filetype}" in
-    ${png_mime}|${jpg_mime});;
-    *) { echo "${infile} ${NOT_MEDIA_FILE_ERR}" && usage; };;
-esac
 
-### zoom function
+#===============================================================================
+# function
+#===============================================================================
+
+# zoom function
 zoom_func () {
   ffmpeg \
   -hide_banner \

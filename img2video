@@ -1,6 +1,16 @@
 #!/bin/sh
 
+#===============================================================================
+# img2video
 # image to video
+#===============================================================================
+
+# dependencies:
+# ffmpeg
+
+#===============================================================================
+# script usage
+#===============================================================================
 
 # script usage
 usage()
@@ -8,35 +18,39 @@ usage()
 echo "\
 # image to video
 
-$(basename "$0") -i infile.(png|jpg|jpeg) -d (000) -o outfile.mp4
--i infile.(mp4|mkv|mov|m4v)
+$(basename "$0") -i input.(png|jpg|jpeg) -d (000) -o output.mp4
+-i input.(mp4|mkv|mov|m4v)
 -d (000)       : duration
--o outfile.mp4 :optional agument # if option not provided defaults to infile-name-video-date-time"
+-o output.mp4  :optional argument # if option not provided defaults to input-name-video-date-time"
 exit 2
 }
 
+
+#===============================================================================
 # error messages
-NOTFILE_ERR='not a file'
+#===============================================================================
+
 INVALID_OPT_ERR='Invalid option:'
 REQ_ARG_ERR='requires an argument'
 WRONG_ARGS_ERR='wrong number of arguments passed to script'
-NOT_MEDIA_FILE_ERR='is not a media file'
 
-# if script is run arguments pass and check the options with getopts,
-# else display script usage and exit
+
+#===============================================================================
+# check the number of arguments passed to the script
+#===============================================================================
+
 [ $# -gt 0 ] || usage "${WRONG_ARGS_ERR}"
 
-# duration regex match 0.[1-9]
-dur_regex='^[0-9]\{1,3\}$'
 
-# getopts check and validate options
+#===============================================================================
+# getopts check the options passed to the script
+#===============================================================================
+
 while getopts ':i:d:o:h' opt
 do
   case ${opt} in
-     i) infile="${OPTARG}"
-	[ -f "${infile}" ] || usage "${infile} ${NOTFILE_ERR}";;
-     d) dur="${OPTARG}"
-	expr "${dur}" : "${dur_regex}" 1>/dev/null;;
+     i) infile="${OPTARG}";;
+     d) dur="${OPTARG}";;
      o) outfile="${OPTARG}";;
      h) usage;;
      \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
@@ -45,19 +59,22 @@ do
 done
 shift $((OPTIND-1))
 
-# infile, infile name and extension
+
+#===============================================================================
+# variables
+#===============================================================================
+
+# input, input name and extension
 infile_nopath="${infile##*/}"
 infile_name="${infile_nopath%.*}"
 
-# outfile file recording destination
+# output file recording destination
 outfile_default="${infile_name}-video-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
 
-# file command check input file mime type
-filetype="$(file --mime-type -b "${infile}")"
 
-# image mimetypes
-png_mime='image/png'
-jpg_mime='image/jpeg'
+#===============================================================================
+# functions
+#===============================================================================
 
 # image to video function
 imgtovid () {
@@ -72,8 +89,5 @@ imgtovid () {
   "${outfile:=${outfile_default}}"
 }
 
-# check the files mime type is a image
-case "${filetype}" in
-    ${png_mime}|${jpg_mime}) imgtovid "${infile}";;
-    *) usage "${infile} ${NOT_MEDIA_FILE_ERR}";;
-esac
+# run the imgtovid function
+imgtovid "${infile}"
