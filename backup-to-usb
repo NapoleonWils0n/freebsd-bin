@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# backup home to usb
+rsync -aAXvzP --ignore-errors --delete --progress \
+--exclude Downloads \
+--exclude Music \
+--exclude Videos \
+--exclude torrents \
+--exclude .nv \
+--exclude .var \
+--exclude .cache \
+--exclude .dbus \
+--exclude .mozilla \
+--exclude .local/share/containers \
+--exclude .local/share/flatpak \
+--exclude .local/share/Trash \
+/home/djwilcox /var/run/media/djwilcox/backup

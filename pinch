@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# pinch send youtube audio to mpd
+
 # script usage
 usage()
 {
@@ -12,6 +14,10 @@ exit 2
 INVALID_OPT_ERR='Invalid option:'
 REQ_ARG_ERR='requires an argument'
 WRONG_ARGS_ERR='wrong number of arguments passed to script'
+
+# mpd host socket
+# MPD_HOST set in ~/.zshenv to "/run/user/1000/mpd/socket"
+host="${MPD_HOST}"
 
 # if script is run arguments pass and check the options with getopts,
 # else display script usage and exit
@@ -30,27 +36,27 @@ done
 shift $((OPTIND-1))
 
 # get the audio url and title
-url=$(youtube-dl --no-check-certificate --no-playlist -e -f bestaudio -g "${input}")
+url=$(yt-dlp --no-check-certificate --no-playlist -e -f bestaudio -g "${input}")
 link=$(echo "${url}" | awk -F' ' '/https:/ {print $1}') # audio url
 name=$(echo "${url}" | awk -F'https:' '{print $1}') # name of song
 
 # yt function
 yt () {
-    if [ -z "$(mpc current)" ]; then # nothing playing
-        if [ -z "$(mpc playlist)" ]; then # playlist empty
-           mpc add "${link}"
-           mpc play 
+    if [ -z "$(mpc --host="${host}" current)" ]; then # nothing playing
+        if [ -z "$(mpc --host="${host}" playlist)" ]; then # playlist empty
+           mpc --host="${host}" add "${link}"
+           mpc --host="${host}" play 
 	   notify-send "Now Playing ♫" "${name}"
 	else # playlist not empty so clear add url and play
-           mpc clear
-	   mpc add "${link}"
-           mpc play 
+           mpc --host="${host}" clear
+	   mpc --host="${host}" add "${link}"
+           mpc --host="${host}" play 
 	   notify-send "Now Playing ♫" "${name}"
 	fi
     else # audio playing insert url and play next
-        mpc insert "${link}" 
-	mpc next
-	notify-send "Now Playing ♫" "${name}"
+        mpc --host="${host}" add "${link}" 
+#	mpc --host="${host}" next
+	notify-send "Queuing ♫" "${name}" 2>/dev/null
     fi
 }
 
