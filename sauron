@@ -14,7 +14,7 @@ video() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp mpv --no-terminal "${line}" 1>/dev/null
+      ts mpv --no-terminal "${line}" 1>/dev/null
     done
 }
 
@@ -23,7 +23,7 @@ fullscreen() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp mpv --no-terminal --fs --fs-screen=1 "${line}" 1>/dev/null 
+      ts mpv --no-terminal --fs --fs-screen=1 "${line}" 1>/dev/null 
     done
 }
 
@@ -54,12 +54,12 @@ ytdlp() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp \
+      ts \
       yt-dlp \
       --ignore-config \
       --no-playlist \
       -f 'bestvideo[height<=1080][vcodec!=?vp9]+bestaudio[acodec!=?opus]' \
-      -o "$HOME/Downloads/%(title)s.%(ext)s" \
+      -o "$HOME/downloads/%(title)s.%(ext)s" \
       "${line}" 1>/dev/null
     done
 }
@@ -69,13 +69,13 @@ aria2c() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp \
+      ts \
       yt-dlp \
       --ignore-config \
       --no-playlist \
       -f 'bestvideo[height<=1080][vcodec!=?vp9]+bestaudio[acodec!=?opus]' \
       --downloader aria2c --downloader-args aria2c:'-c -j 3 -x 3 -s 3 -k 1M' \
-      -o "$HOME/Downloads/%(title)s.%(ext)s" \
+      -o "$HOME/downloads/%(title)s.%(ext)s" \
       "${line}" 1>/dev/null
     done
 }
@@ -85,13 +85,13 @@ ffmpeg() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp \
+      ts \
       yt-dlp \
       --ignore-config \
       --no-playlist \
       -f 'bestvideo[height<=1080][vcodec!=?vp9]+bestaudio[acodec!=?opus]' \
       --downloader ffmpeg --downloader-args ffmpeg:'-hide_banner -stats -v panic' \
-      -o "$HOME/Downloads/%(title)s.%(ext)s" \
+      -o "$HOME/downloads/%(title)s.%(ext)s" \
       "${line}" 1>/dev/null
     done
 }
@@ -101,13 +101,13 @@ sponsorblock_download() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp \
+      ts \
       yt-dlp \
       --ignore-config \
       --no-playlist \
       --sponsorblock-remove all \
       -f 'bestvideo[height<=1080][vcodec!=?vp9]+bestaudio[acodec!=?opus]' \
-      -o "$HOME/Downloads/%(title)s.%(ext)s" \
+      -o "$HOME/downloads/%(title)s.%(ext)s" \
       "${line}" 1>/dev/null
     done
 }
@@ -117,7 +117,7 @@ audio() {
     printf "%s\n" "${input}" | \
     while read -r line
     do
-      tsp pinch -i "${line}" 1>/dev/null 
+      ts pinch -i "${line}" 1>/dev/null 
     done
 }
 
