@@ -58,6 +58,9 @@ ANCHOR="${OPENVPN_anchor}"
 
 # start unbound dns server in fib 0
 #service local_unbound start
+
+# take down the vpn 
+ifconfig "${dev}" down || exit
 }
 
 "$script_type" "$@"
