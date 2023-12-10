@@ -67,6 +67,6 @@ shift $((OPTIND-1))
 
 openvpn \
 --auth-nocache --route-nopull --script-security 2 \
---up "${HOME}/bin/openvpn-up-split" --down "${HOME}/bin/openvpn-down-split" \
+--up "/home/djwilcox/bin/updown-vpn" --down "/home/djwilcox/bin/updown-vpn" \
 --config "${config}" \
 --auth-user-pass "${auth}"

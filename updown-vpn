@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# openvpn split route with setfibs
+#=================================
+
+# openvpn up script
+up() {
+# routes
+mask="$(ifconfig -f inet:cidr ${dev} | awk '/inet/ {print $2}')"
+ifconfig "${dev}" inet "${mask}" "${ifconfig_local}" "${ifconfig_local}" fib 1
+route add -net default "${ifconfig_local}" -fib 1
+
+# openvpn-up
+LANIF="${OPENVPN_lanif}"
+ANCHOR="${OPENVPN_anchor}"
+
+# pf rules
+/sbin/pfctl -a "${ANCHOR}" -F rules
+/sbin/pfctl -a "${ANCHOR}" -F nat
+/sbin/pfctl -a "${ANCHOR}" -f - <<EOT
+pass out quick on "${dev}" inet modulate state
+antispoof quick for "${dev}"
+EOT
+
+#echo "outgoing-interface: $(ifconfig tun0 | awk '/inet/ {print $2}')" \
+#> /etc/unbound/unbound_outgoing_interface
+
+# uncomment include
+#sed -i "" '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/#//' /etc/unbound/conf.d/custom.conf
+
+# sleep for 1 second
+#sleep 1
+
+# stop unbound dns server in fib 0
+#service local_unbound stop
+
+# start unbound dns server in fib 1
+#setfib 1 service local_unbound start
+}
+
+
+# openvpn down script
+down() {
+ANCHOR="${OPENVPN_anchor}"
+
+/sbin/pfctl -a "${ANCHOR}" -F rules
+/sbin/pfctl -a "${ANCHOR}" -F nat
+
+# uncomment include
+#sed -i "" '/include: "\/etc\/unbound\/unbound_outgoing_interface"/s/^/#/' /etc/unbound/conf.d/custom.conf
+#echo > /etc/unbound/unbound_outgoing_interface
+
+# sleep for 1 second
+#sleep 1
+
+# stop unbound dns server in fib 1
+#setfib 1 service local_unbound stop
+
+# start unbound dns server in fib 0
+#service local_unbound start
+}
+
+"$script_type" "$@"
