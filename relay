@@ -69,8 +69,8 @@ shift $((OPTIND-1))
 # yt-dlp url
 url=$(yt-dlp -f b -g --no-playlist "${input}")
 
-# check number of stream links - xargs remove white space
-streamcount=$(echo "${url}" | wc -l | xargs)
+# check number of stream links
+streamcount=$(echo "${url}" | awk 'END{print NR}')
 
 
 #===============================================================================
