@@ -60,7 +60,7 @@ shift $((OPTIND-1))
 url=$(yt-dlp -f b -g --no-playlist "${infile}")
 
 # check number of stream links
-streamcount=$(echo "${url}" | wc -l)
+streamcount=$(echo "${url}" | awk 'END{print NR}')
 
 
 #===============================================================================
