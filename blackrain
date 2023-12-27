@@ -4,8 +4,7 @@
 
 # input = list of torrents
 input=$(transmission-remote -l \
-| head -n -1 \
-| awk 'NR == 1; NR > 1 {print $0 | "sort -k 2 -n"}' \
+| awk 'FNR == 1 {next} NR == 1; NR > 1 {print $0 | "sort -k 2 -n"}' \
 | fzf --multi --info=inline --layout=reverse --header-lines=1 --delimiter='\n' --prompt='Select Torrents: ' | awk '{print $1}')
 
 
