@@ -2,16 +2,15 @@
 
 # backup home to usb
 rsync -aAXvzP --ignore-errors --delete --progress \
---exclude Downloads \
---exclude Music \
---exclude Videos \
+--exclude downloads \
+--exclude music \
+--exclude videos \
 --exclude torrents \
 --exclude .nv \
 --exclude .var \
 --exclude .cache \
+--exclude .cargo \
 --exclude .dbus \
 --exclude .mozilla \
---exclude .local/share/containers \
---exclude .local/share/flatpak \
---exclude .local/share/Trash \
-/home/djwilcox /var/run/media/djwilcox/backup
+--exclude .sndio \
+/home/djwilcox /mnt/usb/djwilcox/backup
