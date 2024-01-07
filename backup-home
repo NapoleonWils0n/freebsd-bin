@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# rsync home backup
-rsync -avz --ignore-errors -e ssh --delete --progress /home/djwilcox macmini:rsync/freebsd
-
