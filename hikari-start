@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# start hikari with dbus
+
+exec dbus-launch --exit-with-session hikari
