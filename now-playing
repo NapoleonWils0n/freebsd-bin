@@ -113,9 +113,9 @@ fi
 
 # check if duration is empty
 if [ -z "${duration}" ]; then
-    body="Artist: ${artist:=${artist_fallback}}\nPlayer: ${player}\nStatus: ${status}\nDuration: ${duration_fallback}\nPosition: ${position_fallback}"
+    body="Artist: ${artist:=${artist_fallback}}\nPlayer: ${player}\nStatus: ${status}\nPosition: ${position_fallback}\nDuration: ${duration_fallback}"
 else
-    body="Artist: ${artist:=${artist_fallback}}\nPlayer: ${player}\nStatus: ${status}\nDuration: ${duration}\nPosition: ${position}"
+    body="Artist: ${artist:=${artist_fallback}}\nPlayer: ${player}\nStatus: ${status}\nPosition: ${position}\nDuration: ${duration}"
 fi
 
 
