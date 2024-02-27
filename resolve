@@ -7,16 +7,16 @@
 # and the audio is routed over a pulseaudio socker from the chroot to the host
 
 # start pulseaudio
-pulseaudio --start --daemonize
+pulseaudio --start --daemonize 2>/dev/null
 
 # Note if you are using X11 on Freebsd comment out the Xwayland line
 # and uncomment the Xephyr line
 
 # Wayland - create the Xwayland window to display Davinci Resolve
-Xwayland -host-grab -fullscreen -geometry 1920x1080 :01
+Xwayland -host-grab -fullscreen -geometry 1920x1080 :01 &
 
 # X11 - create the Xwayland window to display Davinci Resolve
-# Xephyr -br -ac -noreset -screen 1920x1080 :1
+# Xephyr -br -ac -noreset -screen 1920x1080 :1 &
 
 # doas chroot into ubuntu run run the wrapper script to start resolve
 doas chroot /compat/ubuntu /usr/local/bin/wrapper-resolve
