@@ -19,5 +19,4 @@ Xwayland -host-grab -geometry 1920x1080 :01 &
 # Xephyr -ac -noreset -br -resizeable -screen 1920x1080 -ac :1 &
 
 # doas chroot into ubuntu run run the wrapper script to start resolve
-#doas chroot /compat/ubuntu /usr/local/bin/wrapper-resolve
 doas chroot /compat/ubuntu /usr/local/bin/wrapper-resolve -u "${USER}"
