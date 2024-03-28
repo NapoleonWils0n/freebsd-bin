@@ -13,10 +13,12 @@ pulseaudio --start --daemonize 2>/dev/null
 # and uncomment the Xephyr line
 
 # Wayland - create the Xwayland window to display Davinci Resolve
-Xwayland -host-grab -geometry 1920x1080 :01 &
+#Xwayland -host-grab -geometry 1920x1080 :01 &
 
 # X11 - create the Xwayland window to display Davinci Resolve
 # Xephyr -ac -noreset -br -resizeable -screen 1920x1080 -ac :1 &
 
 # doas chroot into ubuntu run run the wrapper script to start resolve
-doas chroot /compat/ubuntu /usr/local/bin/wrapper-resolve -u "${USER}"
+#doas chroot /compat/ubuntu /usr/local/bin/wrapper-resolve -u "${USER}"
+
+doas jexec ubuntu /usr/local/bin/wrapper-resolve -u "${USER}"

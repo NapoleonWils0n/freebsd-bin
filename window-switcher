@@ -1,0 +1,5 @@
+#!/bin/sh
+
+input=$(wlrctl toplevel list | awk -F: '{print $1}' | tofi)
+
+wlrctl toplevel activate app_id:"${input}"
