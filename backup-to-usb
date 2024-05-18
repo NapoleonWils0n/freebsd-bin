@@ -13,4 +13,5 @@ rsync -aAXvzP --ignore-errors --delete --progress \
 --exclude .dbus \
 --exclude .mozilla \
 --exclude .sndio \
+--exclude .config/chromium \
 /home/djwilcox /mnt/usb/djwilcox
