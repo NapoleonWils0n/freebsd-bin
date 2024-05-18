@@ -4,7 +4,7 @@
 rsync -aAXvzP --ignore-errors --delete --progress \
 --exclude downloads \
 --exclude music \
---exclude videos \
+--exclude video \
 --exclude torrents \
 --exclude .nv \
 --exclude .var \
