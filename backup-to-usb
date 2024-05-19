@@ -15,4 +15,4 @@ rsync -aAXvzP --ignore-errors --delete --progress \
 --exclude .sndio \
 --exclude .config/chromium \
 --exclude .config/eduke32 \
-/home/djwilcox /mnt/usb/djwilcox
+/home/djwilcox /mnt/usb
