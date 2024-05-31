@@ -13,16 +13,11 @@ case "$input" in
         # change external keyboard layout
         # external keyboard
         setxkbmap -layout gb -variant mac -option ctrl:swap_lalt_lctl,altwin:alt_super_win
-        # scrolling
-        xmodmap ~/.Mouse-Xmodmap
         break;;
   off)
         # reset keyboard layout
         # internal keyboard
-        xkbcomp -I$HOME/.xkb $HOME/.xkb/keymap/keymap.xkb $DISPLAY
-        # scrolling
-        xmodmap ~/.Xmodmap
-
+        setxkbmap -layout gb -variant mac -option custom:alt_win_ctrl,caps:none
         break;;
   *)    printf "%s\n" "$usage";;
 esac
