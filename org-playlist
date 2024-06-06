@@ -9,6 +9,7 @@
 # yt-dlp
 # jq
 # wl-copy
+# ts
 
 #===============================================================================
 # script usage
@@ -62,8 +63,8 @@ shift $((OPTIND-1))
 #===============================================================================
 
 org_playlist () {
-  yt-dlp -j --flat-playlist "${input}" 2>/dev/null \
-  | jq -rj '"[[video:\(.url)][\(.title)]]\n"' \
+  ts yt-dlp -j --flat-playlist "${input}" 2>/dev/null \
+  | jq -rj '"[[video:\(.original_url)][\(.title)]]\n"' \
   | wl-copy
 }
 
