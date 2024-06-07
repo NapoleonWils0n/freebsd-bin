@@ -63,7 +63,7 @@ shift $((OPTIND-1))
 #===============================================================================
 
 org_playlist () {
-  ts yt-dlp -j --flat-playlist "${input}" 2>/dev/null \
+  yt-dlp -j --flat-playlist "${input}" 2>/dev/null \
   | jq -rj '"[[video:\(.original_url)][\(.title)]]\n"' \
   | wl-copy
 }
