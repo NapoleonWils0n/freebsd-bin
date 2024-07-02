@@ -1,0 +1,81 @@
+#!/bin/sh
+
+#===============================================================================
+# youtube create a m3u playlist for kodi
+#===============================================================================
+
+# dependencies:
+# yt-dlp awk
+
+#===============================================================================
+# script usage
+#===============================================================================
+
+usage () {
+# if argument passed to function echo it
+[ -z "${1}" ] || echo "! ${1}"
+# display help
+echo "\
+$(basename "$0") -i input"
+exit 2
+}
+
+
+#===============================================================================
+# error messages
+#===============================================================================
+
+INVALID_OPT_ERR='Invalid option:'
+REQ_ARG_ERR='requires an argument'
+WRONG_ARGS_ERR='wrong number of arguments passed to script'
+
+
+#===============================================================================
+# check the number of arguments passed to the script
+#===============================================================================
+
+[ $# -gt 0 ] || usage "${WRONG_ARGS_ERR}"
+
+
+#===============================================================================
+# getopts check the options passed to the script
+#===============================================================================
+
+while getopts ':i:h' opt
+do
+  case ${opt} in
+     i) input="${OPTARG}";;
+     h) usage;;
+     \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
+     :) usage "${INVALID_OPT_ERR} ${OPTARG} ${REQ_ARG_ERR}" 1>&2;;
+  esac
+done
+shift $((OPTIND-1))
+
+
+#===============================================================================
+# variables
+#===============================================================================
+
+video=$(yt-dlp --skip-download --print "%(id)s\%(title)s" "${input}")
+title=$(echo "${video}" | awk -F'\' '{ printf("%s\n"), $2 }')
+playlistdir="${HOME}/.kodi/userdata/playlists/video/"
+m3u="${playlistdir}${title}.m3u"
+
+
+#===============================================================================
+# m3uplaylist function
+#===============================================================================
+
+m3uplaylist () {
+echo "${video}" \
+| awk -F'\' '{ printf("%s\n%s %s\n%s%s\n"),\
+"#EXTM3U", "#EXTINF: 0,", $2, "plugin://plugin.video.youtube/play/?video_id=", $1 }' > "${m3u}"
+}
+
+
+#===============================================================================
+# run function
+#===============================================================================
+
+m3uplaylist
