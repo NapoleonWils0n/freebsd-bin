@@ -1,0 +1,78 @@
+#!/bin/sh
+
+#===============================================================================
+# kyt-send
+# youtube send url to kodi
+#===============================================================================
+
+# dependencies:
+# yt-dlp awk
+
+#===============================================================================
+# script usage
+#===============================================================================
+
+usage () {
+# if argument passed to function echo it
+[ -z "${1}" ] || echo "! ${1}"
+# display help
+echo "\
+$(basename "$0") -i input"
+exit 2
+}
+
+
+#===============================================================================
+# error messages
+#===============================================================================
+
+INVALID_OPT_ERR='Invalid option:'
+REQ_ARG_ERR='requires an argument'
+WRONG_ARGS_ERR='wrong number of arguments passed to script'
+
+
+#===============================================================================
+# check the number of arguments passed to the script
+#===============================================================================
+
+[ $# -gt 0 ] || usage "${WRONG_ARGS_ERR}"
+
+
+#===============================================================================
+# getopts check the options passed to the script
+#===============================================================================
+
+while getopts ':i:h' opt
+do
+  case ${opt} in
+     i) input="${OPTARG}";;
+     h) usage;;
+     \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
+     :) usage "${INVALID_OPT_ERR} ${OPTARG} ${REQ_ARG_ERR}" 1>&2;;
+  esac
+done
+shift $((OPTIND-1))
+
+
+#===============================================================================
+# variable
+#===============================================================================
+
+# get the youtube id from the url
+url=$(echo "${input}" | awk -F'=' '/watch\?v/ { printf("%s\n"), $2 }')
+
+
+#===============================================================================
+# function
+#===============================================================================
+
+kyt_url () {
+curl -X POST -H "content-type:application/json" http://kodi:kodi@127.0.0.1:8080/jsonrpc -d '{"jsonrpc": "2.0", "method": "Player.Open","params": {"item": { "file": "plugin://plugin.video.youtube/play/?video_id='${url}'" } }}' 2>/dev/null
+}
+
+
+#===============================================================================
+# run function
+#===============================================================================
+
+kyt_url
