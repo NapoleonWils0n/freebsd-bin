@@ -70,15 +70,9 @@ kyt_url () {
 curl -X POST -H "content-type:application/json" http://kodi:kodi@127.0.0.1:8080/jsonrpc -d '{"jsonrpc": "2.0", "method": "Player.Open","params": {"item": { "file": "plugin://plugin.video.youtube/play/?video_id='${url}'" } }}' 2>/dev/null
 }
 
-enter () {
-sleep 1
-curl -X POST -H "content-type:application/json" http://kodi:kodi@127.0.0.1:8080/jsonrpc -d '{"jsonrpc": "2.0", "id": 1, "method": "Input.Select"}' 2>/dev/null
-}
-
 
 #===============================================================================
 # run function
 #===============================================================================
 
 kyt_url
-enter
