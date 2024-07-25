@@ -71,8 +71,14 @@ curl -X POST -H "content-type:application/json" http://kodi:kodi@127.0.0.1:8080/
 }
 
 
+enter () {
+sleep 1
+curl -X POST -H "content-type:application/json" http://kodi:kodi@127.0.0.1:8080/jsonrpc -d '{"jsonrpc": "2.0", "method": "Input.Select"}' 2>/dev/null
+}
+
 #===============================================================================
 # run function
 #===============================================================================
 
 kyt_url
+enter
