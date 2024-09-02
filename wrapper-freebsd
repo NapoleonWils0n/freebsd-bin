@@ -43,10 +43,10 @@ shift $((OPTIND-1))
 #===============================================================================
 
 # start pulseaudio
-pulseaudio --start --daemonize 2>/dev/null 
+#pulseaudio --start --daemonize 2>/dev/null
 
 # doas jexec into ubuntu and run the wrapper script to start the application
-doas jexec ubuntu /usr/local/bin/wrapper-linux \
+doas jexec classic /usr/local/bin/wrapper-jail \
 -u "${USER}" \
 -d "DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS}" \
 -a "${app}"
