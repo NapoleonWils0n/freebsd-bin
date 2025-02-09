@@ -38,7 +38,6 @@ shift $((OPTIND-1))
 # get the audio url and title
 url=$(yt-dlp --no-check-certificate --no-playlist -e -f bestaudio -g "${input}")
 link=$(echo "${url}" | awk -F' ' '/https:/ {print $1}') # audio url
-name=$(echo "${url}" | awk -F'https:' '{print $1}') # name of song
 
 # yt function
 yt () {
