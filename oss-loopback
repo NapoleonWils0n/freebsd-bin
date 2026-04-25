@@ -45,4 +45,4 @@ WRONG_ARGS_ERR='wrong number of arguments passed to script'
 # virtual_oss create loopback device on /dev/dsp1
 #===============================================================================
 
-virtual_oss -Q 0 -C 2 -c 2 -r 48000 -b 16 -s 1024 -P /dev/dsp1 -R /dev/null -w vdsp.wav -l dsp
+virtual_oss -Q 0 -C 2 -c 2 -r 48000 -b 16 -s 1024 -P /dev/dsp1 -R /dev/null -w vdsp.wav -l dsp -t dsp.ctl

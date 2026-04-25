@@ -12,7 +12,9 @@ usage () {
 # display help
 echo "\
 # script usage
-$(basename "$0") -u ${USER}"
+$(basename "$0") -j jail -a application -p on
+-p on = enable audio on the freebsd host for the jail
+"
 exit 2
 }
 
@@ -27,10 +29,12 @@ exit 2
 # getopts check the options passed to the script
 #===============================================================================
 
-while getopts ':a:h' opt
+while getopts ':j:a:p:h' opt
 do
   case ${opt} in
+     j) jail="${OPTARG}";;
      a) app="${OPTARG}";;
+     p) audio="${OPTARG}";;
      h) usage;;
      \?) usage "${INVALID_OPT_ERR} ${OPTARG}" 1>&2;;
      :) usage "${INVALID_OPT_ERR} ${OPTARG} ${REQ_ARG_ERR}" 1>&2;;
@@ -39,14 +43,31 @@ done
 shift $((OPTIND-1))
 
 #===============================================================================
-# run the application in the jail
+# start audio if -p on option is specified
 #===============================================================================
 
-# start pulseaudio
-#pulseaudio --start --daemonize 2>/dev/null
+# default audio off
+audio_default="off"
 
-# doas jexec into ubuntu and run the wrapper script to start the application
-doas jexec classic /usr/local/bin/wrapper-jail \
+# start audio
+audio () {
+pulseaudio --start --daemonize 2>/dev/null
+}
+
+# check if pulseaudio should be started
+case "${audio:=${audio_default}}" in
+    on) audio;;
+    off) ;;
+    *) usage;;
+esac
+
+
+#===============================================================================
+# doas jexec into the jail and run the wrapper script to start the application
+#===============================================================================
+
+doas jexec "${jail}" \
+/usr/local/bin/wrapper-jail \
 -u "${USER}" \
 -d "DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS}" \
 -a "${app}" \

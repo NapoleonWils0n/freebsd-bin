@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# start wayfire with dbus
-
-exec dbus-launch --exit-with-session wayfire

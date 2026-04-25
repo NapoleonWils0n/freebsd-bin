@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# labwc start
-exec dbus-launch --exit-with-session labwc

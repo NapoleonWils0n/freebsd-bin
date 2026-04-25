@@ -15,6 +15,7 @@ usage () {
 echo "\
 $(basename "$0") -m mount -f container -k gelikey 
 $(basename "$0") -m umount -f container"
+exit 1
 }
 
 #===============================================================================
@@ -47,7 +48,7 @@ REQ_ARG_ERR='requires an argument'
 while getopts ':m:f:k:h' opt
 do
   case ${opt} in
-     m) mount="${OPTARG}";;
+     m) action="${OPTARG}";;
      f) container="${OPTARG}";;
      k) gelikey="${OPTARG}";;
      h) usage;;
@@ -63,73 +64,54 @@ shift $((OPTIND-1))
 #===============================================================================
 
 # mount function
-mount () {
-    # group commands
-    { 
-    # mdconfig loopname from container
-    loopdevice=$(mdconfig -lf "${container}" | sed 's/[ \t]*$//')
+mount_container () {
+    [ -f "${container}" ] || usage "Container file not found"
+    [ -f "${gelikey}" ] || usage "GELI key not found"
 
-    # eli filepath
-    loopcrypt="/dev/${loopdevice}.eli"
+    # mdconfig create vnode
+    loop=$(mdconfig -a -t vnode -f "${container}") || exit 1
 
-    # mdconfig create vnode from container
-    loop=$(mdconfig -a -t vnode -f "${container}")
+    # geli attach
+    geli attach -k "${gelikey}" "${loop}" || { mdconfig -du "${loop}"; exit 1; }
 
-    # geli attach key to vnode
-    geli attach -k "${gelikey}" "${loop}"
+    loopcrypt="/dev/${loop}.eli"
 
-    # mdconfig loop device for container
-    loopdevice=$(mdconfig -lf "${container}" | sed 's/[ \t]*$//')
-
-    # path to mdconfig eli file
-    loopcrypt="/dev/${loopdevice}.eli"
-
-    # zpool name from mdconfig eli file
+    # find pool name
     poolname=$(zdb -l "${loopcrypt}" | awk -F\' '/[[:blank:]]name/ {print $2; exit;}')
 
-    # zpool import pool
+    # import pool
     zpool import "${poolname}"
-
-    # mount point from zpool
-    mountpoint=$(zfs get -H -o value mountpoint "${poolname}");
-    } || { mdconfig -du "${loopdevice}" && exit; }
 }
 
 # umount function
-umount () {
-    # group commands
-    {
-    # mdconfig loopname from container
-    loopdevice=$(mdconfig -lf "${container}" | sed 's/[ \t]*$//')
+umount_container () {
+    [ -n "${container}" ] || usage "Container path required (-f)"
 
-    # eli filepath
+    # find associated md device
+    loopdevice=$(mdconfig -lv | grep "${container}" | awk '{print $1}')
+    
+    if [ -z "${loopdevice}" ]; then
+        echo "Error: Container not found in mdconfig list."
+        exit 1
+    fi
+
     loopcrypt="/dev/${loopdevice}.eli"
-
-    # zpool name from eli file
     poolname=$(zdb -l "${loopcrypt}" | awk -F\' '/[[:blank:]]name/ {print $2; exit;}')
 
-    # zfs umount poolname
-    zfs umount "${poolname}"
-
-    # zpool export poolname
+    # clean tear down
+    zfs umount "${poolname}" 2>/dev/null
     zpool export "${poolname}"
     sleep 1
-
-    # geli detach
     geli detach "${loopcrypt}"
-
-    # mdconfig remove md file
-    mdconfig -du "${loopdevice}";
-    } || { echo 'container not mounted' && exit; }
+    mdconfig -du "${loopdevice}"
 }
-
 
 #===============================================================================
 # mount and umount case statement
 #===============================================================================
 
-case "${mount}" in
-    mount) mount;;
-    umount) umount;;
+case "${action}" in
+    mount) mount_container;;
+    umount) umount_container;;
     *) usage;;
 esac

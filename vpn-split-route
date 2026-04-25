@@ -1,7 +1,8 @@
 #!/bin/sh
 
+#===============================================================================
 # openvpn split route
-#====================
+#===============================================================================
 
 #===============================================================================
 # script usage
@@ -67,6 +68,9 @@ shift $((OPTIND-1))
 
 openvpn \
 --auth-nocache --route-nopull --script-security 2 \
+--setenv OPENVPN_anchor "openvpn" \
+--setenv OPENVPN_lanif "lagg0" \
+--data-ciphers 'AES-256-GCM:AES-128-GCM:AES-256-CBC' \
 --up "/home/djwilcox/bin/updown-vpn" --down "/home/djwilcox/bin/updown-vpn" \
 --config "${config}" \
 --auth-user-pass "${auth}"
