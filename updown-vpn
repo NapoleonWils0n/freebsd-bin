@@ -10,10 +10,16 @@
 #===============================================================================
 
 up() {
+# Clear existing state for the device to prevent "File exists" errors
+ifconfig "${dev}" inet 0.0.0.0 delete >/dev/null 2>&1
+
 # routes
 mask="$(ifconfig -f inet:cidr ${dev} | awk '/inet/ {print $2}')"
 ifconfig "${dev}" inet "${mask}" "${ifconfig_local}" "${ifconfig_local}" fib 1
 route add -net default "${ifconfig_local}" -fib 1
+
+# Bridge FIB 1 to local Unbound/dnscrypt-proxy
+route -q add -host 127.0.0.1 -interface lo0 -fib 1
 
 # openvpn-up
 LANIF="${OPENVPN_lanif}"

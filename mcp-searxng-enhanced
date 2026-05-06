@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Force unbuffered output so the stream isn't delayed
+export PYTHONUNBUFFERED=1
+
+# Filter the output:
+# 1. '--line-buffered' ensures Emacs gets the data immediately.
+# 2. '^{"jsonrpc"' matches only the start of valid MCP/JSON-RPC messages.
+exec /usr/local/bin/doas /usr/local/bin/podman run -i --rm --network=host \
+    -e "SEARXNG_URL=http://localhost:8080" \
+    -e "PYTHONUNBUFFERED=1" \
+    localhost/mcp-searxng-enhanced:local | grep --line-buffered '^{"jsonrpc"'
