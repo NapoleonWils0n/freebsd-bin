@@ -1,4 +1,7 @@
 #!/bin/sh
 
+# backlight 100
+backlight 100
+
 # start dwl with dbus
 exec dbus-launch --exit-with-session dwl -s 'dwlb -font "monospace:size=16"' 2>/dev/null
